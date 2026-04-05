@@ -8,6 +8,12 @@ Remote: [github.com/id55854/TouristFlow](https://github.com/id55854/TouristFlow)
 
 ## Frontend (Vercel)
 
+**Production:** [touristflow.vercel.app](https://touristflow.vercel.app)
+
+To connect [GitHub](https://github.com/id55854/TouristFlow) for automatic deploys: Vercel → Project → **Settings → Git** → link `id55854/TouristFlow` and set **Root Directory** to `frontend`.
+
+Manual setup:
+
 1. Import this repo in [Vercel](https://vercel.com/new).
 2. Set **Root Directory** to `frontend`.
 3. **Environment variables** (optional):
