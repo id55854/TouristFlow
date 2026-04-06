@@ -7,6 +7,7 @@ bookings, competitors, weather, flights, and Croatian event catalog.
 
 from __future__ import annotations
 
+import os
 import random
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -797,16 +798,52 @@ def seed_database(
     db.commit()
 
 
-def main() -> None:
+def _is_managed_host() -> bool:
+    """True when running on a cloud host where we should not wipe SQLite every boot."""
     from config import settings
 
+    if (settings.touristflow_managed_host or "").strip() == "1":
+        return True
+    return (
+        os.environ.get("RENDER", "").lower() == "true"
+        or os.environ.get("RAILWAY_PROJECT_ID") is not None
+        or os.environ.get("FLY_APP_NAME") is not None
+        or os.environ.get("K_SERVICE") is not None  # Google Cloud Run
+        or os.environ.get("KOYEB_DEPLOYMENT_ID") is not None
+        or os.environ.get("KOYEB_APP_NAME") is not None
+    )
+
+
+def main() -> None:
+    """Populate SQLite.
+
+    - **Local:** removes existing DB file each run (same as before), then seeds.
+    - **Managed hosts** (Render, Railway, Koyeb, Fly, Cloud Run) or `TOURISTFLOW_MANAGED_HOST=1`:
+      keeps the DB file; skips seed if data already exists unless `FORCE_RESEED=1`.
+    """
+    from config import settings
+
+    managed = _is_managed_host()
+    force = os.environ.get("FORCE_RESEED", "").strip() == "1"
     p = settings.sqlite_path
-    if p is not None and p.exists():
+
+    if force and p is not None and p.exists():
+        p.unlink()
+    elif not managed and p is not None and p.exists():
         p.unlink()
 
     init_db()
     db = SessionLocal()
     try:
+        if managed:
+            n_existing = db.scalar(select(func.count()).select_from(DailyOccupancy)) or 0
+            if n_existing > 0 and not force:
+                print(
+                    f"Database already seeded ({n_existing} daily rows); "
+                    "skipping. Set FORCE_RESEED=1 to wipe and reseed."
+                )
+                return
+
         seed_database(db)
         n_occ = db.scalar(select(func.count()).select_from(DailyOccupancy)) or 0
         n_book = db.scalar(select(func.count()).select_from(Booking)) or 0

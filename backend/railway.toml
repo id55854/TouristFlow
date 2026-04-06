@@ -1,0 +1,11 @@
+# Railway config-as-code — https://docs.railway.com/reference/config-as-code
+# In the dashboard, set this service’s Root Directory to `backend` (monorepo).
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+# First boot runs `seed.py` (Prophet/data) before the API listens; allow a long window.
+healthcheckTimeout = 300

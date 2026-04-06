@@ -1,4 +1,8 @@
+import { isMockApiEnabled, mockFetchJson, mockPostJson } from "@/lib/mock-api";
+
 const DEFAULT_API = "http://localhost:8000";
+
+export { isMockApiEnabled };
 
 export function getApiBase(): string {
   if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_API_URL) {
@@ -8,6 +12,9 @@ export function getApiBase(): string {
 }
 
 export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+  if (isMockApiEnabled()) {
+    return Promise.resolve(mockFetchJson(path) as T);
+  }
   const url = `${getApiBase()}${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, init);
   if (!res.ok) {
@@ -18,6 +25,9 @@ export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T>
 }
 
 export async function postJson<T>(path: string, body: unknown, init?: RequestInit): Promise<T> {
+  if (isMockApiEnabled()) {
+    return Promise.resolve(mockPostJson(path, body) as T);
+  }
   const url = `${getApiBase()}${path.startsWith("/") ? path : `/${path}`}`;
   const res = await fetch(url, {
     method: "POST",

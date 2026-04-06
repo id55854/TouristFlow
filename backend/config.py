@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./touristflow.db"
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.0-flash"
-    """When set (e.g. 2026-04-06), APIs use this as 'today' for demo (clamped to seeded data)."""
     touristflow_demo_date: str | None = None
+    touristflow_managed_host: str | None = None
 
     @property
     def demo_today(self) -> Optional[date]:
