@@ -11,11 +11,13 @@ import {
   Sparkles,
   Building2,
   Wand2,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/portfolio", label: "Portfolio fusion", icon: Layers },
   { href: "/forecast", label: "Forecast", icon: LineChart },
   { href: "/pricing", label: "Pricing", icon: Coins },
   { href: "/competitors", label: "Competitors", icon: Building2 },
